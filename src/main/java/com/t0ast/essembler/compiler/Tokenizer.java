@@ -13,7 +13,6 @@ import java.util.Arrays;
  */
 public class Tokenizer
 {
-    public static final String REGEX_LINE_BREAK = "\\R";
     private static final String[] TOKEN_DELIMITERS = {"{", ";", "}"};
     
     private Formatter formatter;

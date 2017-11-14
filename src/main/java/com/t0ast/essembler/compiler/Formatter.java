@@ -5,8 +5,6 @@
  */
 package com.t0ast.essembler.compiler;
 
-import static com.t0ast.essembler.compiler.Tokenizer.REGEX_LINE_BREAK;
-
 /**
  *
  * @author T0astBread
@@ -15,6 +13,6 @@ public class Formatter
 {
     public String format(String source)
     {
-        return source.replaceAll(REGEX_LINE_BREAK + "|\\s", "");
+        return source.replaceAll("\\R|\\s", "");
     }
 }
