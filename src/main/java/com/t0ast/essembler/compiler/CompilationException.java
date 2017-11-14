@@ -9,10 +9,20 @@ package com.t0ast.essembler.compiler;
  *
  * @author T0astBread
  */
-public class Formatter
+public class CompilationException extends Exception
 {
-    public String format(String source)
+
+    public CompilationException()
     {
-        return source.replaceAll("\\R|\\s", "");
+    }
+    
+    public CompilationException(String message)
+    {
+        super(message);
+    }
+    
+    public CompilationException(Throwable cause)
+    {
+        super(cause);
     }
 }
