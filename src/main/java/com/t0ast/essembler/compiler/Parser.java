@@ -5,8 +5,10 @@
  */
 package com.t0ast.essembler.compiler;
 
-import com.t0ast.essembler.IntermediaryFunction;
+import com.t0ast.essembler.asm.Function;
+import com.t0ast.essembler.asm.FunctionCall;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -16,21 +18,21 @@ public class Parser
 {
     public static final String FUNCTION_NAME_REGEX = "^(\\w|_)+$";
     
-    public HashMap<String, IntermediaryFunction> functions;
+    public HashMap<String, Function> functions;
 
     public Parser()
     {
         this.functions = new HashMap<>();
     }
     
-    public HashMap<String, IntermediaryFunction> parse(String[] tokens) throws ParsingException
+    public Map<String, Function> parse(String[] tokens) throws ParsingException
     {
-        this.functions.clear();
+        Map<String, Function> functions = new HashMap<>();
         for(int i = 0; i < tokens.length;)
         {
             String token = tokens[i++];
             if(!token.matches(FUNCTION_NAME_REGEX)) throw new ParsingException(i, token, "Function name malformed: " + token);
-            IntermediaryFunction newFunction = new IntermediaryFunction(token);
+            Function newFunction = new Function(token);
             
             token = tokens[i++];
             if(!token.equals("{")) throw new ParsingException(i, token, "'{' expected after function header");
@@ -41,11 +43,24 @@ public class Parser
                 if(token.equals("}")) break;
                 if(token.equals(";")) continue;
                 if(!token.matches(FUNCTION_NAME_REGEX)) throw new ParsingException(i, token, "Malformed function call in function " + newFunction.getName() + ": " + token);
+                String calledFuncName = token;
                 token = tokens[i++];
-                // Next: quantifiers
-                // LAST EDITED - 8.11.
+                int quantity = 1;
+                if(token.equals("["))
+                {
+                    String malformedQuant = "Malformed quantifier in function " + newFunction.getName() + ": ";
+                    token = tokens[i++];
+                    if(!token.matches("\\d")) throw new ParsingException(i, token, malformedQuant + token);
+                    int tempQuantitiy = Integer.parseInt(token);
+                    token = tokens[i++];
+                    if(!token.equals("]")) throw new ParsingException(i, token, malformedQuant + token);
+                }
+                if(!token.equals(";")) throw new ParsingException(i, token, "Syntax error in function " + newFunction.getName() + ": ; expected after call to " + calledFuncName + " instead of " + token);
+                newFunction.appendFunctionCall(new FunctionCall(calledFuncName, quantity));
             }
+            functions.put(newFunction.getName(), newFunction);
         }
+        return functions;
     }
     
     public static class ParsingException extends CompilationException
